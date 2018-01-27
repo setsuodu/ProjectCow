@@ -6,25 +6,27 @@ using UnityEngine.UI;
 
 public class StartWindows : MonoBehaviour 
 {
-	[SerializeField] private bool flag;
+	[SerializeField] private bool flag = false;
 	[SerializeField] private Image image;
+	[SerializeField] private Button button;
 
 	#region Unity Methods
 
-	void Awake () 
+	void Start () 
 	{
 		
 	}
 
-	void Start () 
-	{
-		flag = false;
-	}
-
 	void Update()
 	{
-		if (Input.GetKeyDown ("space"))
+		if (Input.GetKeyDown (KeyCode.Space))
 		{
+			button.image.color = new Color (0.5f,0.5f,0.5f,1);
+		}
+
+		if (Input.GetKeyUp (KeyCode.Space))
+		{
+			button.image.color = new Color (1,1,1,1);
 			EnterGame ();
 		}
 
@@ -39,13 +41,13 @@ public class StartWindows : MonoBehaviour
 
 	#endregion
 
-	private void EnterGame ()
+	void EnterGame ()
 	{
 		flag = true;
-		Invoke ("loadScene", 2f);
+		Invoke ("LoadScene", 2f);
 	}
 
-	void loadScene()
+	void LoadScene()
 	{
 		SceneManager.LoadScene ("jiaocheng");
 	}

@@ -7,8 +7,6 @@ public class WheelManager : MonoBehaviour {
 	public static WheelManager instace;
 	public Wheel WHEEL;
 	public Lvdai LVDAI;
-//	public GameObject backGround;
-//  public GameObject tempo;
 	public float speed;
 
 	//齿轮起始位置
@@ -24,7 +22,8 @@ public class WheelManager : MonoBehaviour {
 	private int cntW;
 
 	// Use this for initialization
-	void Awake () {
+	void Awake () 
+	{
 		speed = 0.3f;
 		instace = this;
 		wheel = new List<Wheel>();
