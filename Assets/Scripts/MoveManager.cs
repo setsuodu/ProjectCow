@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MoveManager : MonoBehaviour 
+public class MoveManager : MonoBehaviour
 {
 	public static MoveManager instance;
 
 	public float speed; //控制全局速度
 	public float timespan; //控制发射间隔
+	public GameObject current; //当前目标
 	[SerializeField] private Vector3 spawnPos, endPos;
 	[SerializeField] private Text m_debugText; //打印
 	[SerializeField] private Text m_scoreText; //计分板
@@ -34,6 +35,8 @@ public class MoveManager : MonoBehaviour
 	void Start()
 	{
 		scoreBoard.SetActive (false);
+
+		going.isOn = true;
 	}
 
 	void Update ()
@@ -43,18 +46,18 @@ public class MoveManager : MonoBehaviour
 
 		//获取状态
 		timer += Time.deltaTime;
-		if (timer >= timespan && going.isOn)
+		if (timer >= timespan && going.isOn && current == null)
 		{
-			if (cowCount > cowMax) 
+			if (cowCount >= cowMax) 
 			{
 				PushScoreBoard ();
 			} 
 			else
 			{
-				Spawn ();
-				timer = 0;
+				current = Spawn();
 			}
 		}
+
 
 		//操作
 		if (Input.GetKeyDown (KeyCode.Space)) 
@@ -92,7 +95,7 @@ public class MoveManager : MonoBehaviour
 						holdTime += Time.deltaTime;
 						if (milk.localPosition.y < 0) 
 						{
-							milk.localPosition += new Vector3 (0, 1f, 0); //0.01f 根据sprite大小，装载时间更改
+							milk.localPosition += new Vector3 (0, 2f, 0); //0.01f 根据sprite大小，装载时间更改
 						}
 						m_debugText.text = "good " + holdTime.ToString("f1");
 						going.isOn = false;
@@ -172,12 +175,15 @@ public class MoveManager : MonoBehaviour
 	}
 
 	//刷下一个牛
-	void Spawn()
+	GameObject Spawn()
 	{
 		GameObject go = Instantiate (prefab);
 		go.transform.position = spawnPos;
 		go.name = "cow1"; //随机
 		cowCount += 1;
+		timer = 0;
+
+		return go;
 	}
 
 	//计分函数
