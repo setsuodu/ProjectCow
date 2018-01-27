@@ -4,12 +4,22 @@ using UnityEngine;
 
 public class SelfRotate : MonoBehaviour 
 {
-	void Start () {
-		
+	public static SelfRotate instance;
+
+	void Awake()
+	{
+		instance = this;
+	}
+
+	void Start () 
+	{
 	}
 	
 	void Update () 
 	{
-		transform.Rotate (-Vector3.forward * 10f, Space.Self);
+		if (Move.instance != null && Move.instance.active) 
+		{
+			transform.Rotate (-Vector3.forward * 10f, Space.Self);
+		}
 	}
 }

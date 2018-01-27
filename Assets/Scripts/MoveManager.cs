@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MoveManager : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class MoveManager : MonoBehaviour
 	[SerializeField] private Text m_scoreText; //计分板
 	[SerializeField] private float timer = 0;
 	[SerializeField] private GameObject scoreBoard;
-	[SerializeField] private GameObject prefab; //预制体
+	[SerializeField] private GameObject[] prefab; //预制体
 	[SerializeField] private Transform bucket;
 	[SerializeField] private RectTransform milk; //桶mask
 	[SerializeField] private Transform target; //当前目标
@@ -23,26 +24,30 @@ public class MoveManager : MonoBehaviour
 	public Toggle going;
 	[SerializeField] private int cowMax = 10; //牛的总量，cowCount等于cowMax时停止Spawn，结算
 	/*[SerializeField]*/ private int cowCount = 0; //牛的数量
-	/*[SerializeField]*/ private int bucketSuccess = 0; //伸桶成功的数量
-	/*[SerializeField]*/ private int milkingSuccess = 0; //挤奶成功的数量
+	public int bucketSuccess = 0; //伸桶成功的数量
+	public int milkingSuccess = 0; //挤奶成功的数量
+
+	//结算
+	[SerializeField] private Button restartButton;
+	[SerializeField] private GameObject[] results;
 
 	void Awake () 
 	{
 		instance = this;
 		going.onValueChanged.AddListener ((bool value) => OnStartGame(value));
+		restartButton.onClick.AddListener (RestartGame);
 	}
 
 	void Start()
 	{
 		scoreBoard.SetActive (false);
-
 		going.isOn = true;
 	}
 
 	void Update ()
 	{
 		//计分
-		Score ();
+		//Score ();
 
 		//获取状态
 		timer += Time.deltaTime;
@@ -91,10 +96,46 @@ public class MoveManager : MonoBehaviour
 						script.Stop ();
 						target = hitInfo.transform;
 						Debug.Log ("good"); //伸桶成功 bucketSuccess
-						bucketSuccess += 1;
+						//bucketSuccess += 1;
+						script.bucket = 1;
 						script.ChangeStatus (1);
 					}
+					if(hitInfo.transform.GetComponent<Move> ().status == "good")
+					{
+						holdTime += Time.deltaTime;
+						if (milk.localPosition.y < 0) 
+						{
+							milk.localPosition += new Vector3 (0, 1.5f, 0); //0.01f 根据sprite大小，装载时间更改
+						}
+						m_debugText.text = "good " + holdTime.ToString("f1");
+						going.isOn = false;
+						if (holdTime > 3) 
+						{
+							//hold太久了，按过头
+							Debug.Log("too much");
+							m_debugText.text = "too much";
+							Move script = hitInfo.transform.GetComponent<Move> ();
+							script.Continue();
+							script.ChangeStatus (3);
+							script.milk = 0;
+							going.isOn = true;
+							target = null;
+						}
+					}
+					break;
 
+				case "cow2": //巨大
+					if (string.IsNullOrEmpty (hitInfo.transform.GetComponent<Move> ().status)) 
+					{
+						Move script = hitInfo.transform.GetComponent<Move> ();
+						script.status = "good";
+						script.Stop ();
+						target = hitInfo.transform;
+						Debug.Log ("good"); //伸桶成功 bucketSuccess
+						//bucketSuccess += 1;
+						script.bucket = 1;
+						script.ChangeStatus (1);
+					}
 					if(hitInfo.transform.GetComponent<Move> ().status == "good")
 					{
 						holdTime += Time.deltaTime;
@@ -109,13 +150,27 @@ public class MoveManager : MonoBehaviour
 							//hold太久了，按过头
 							Debug.Log("too much");
 							m_debugText.text = "too much";
-							hitInfo.transform.GetComponent<Move> ().Continue();
+							Move script = hitInfo.transform.GetComponent<Move> ();
+							script.Continue();
+							script.ChangeStatus (3);
+							script.milk = 0;
 							going.isOn = true;
 							target = null;
-							//timer = 0;
 						}
 					}
 					break;
+
+				case "cow3": //公牛
+					if (string.IsNullOrEmpty (hitInfo.transform.GetComponent<Move> ().status))
+					{
+						Move script = hitInfo.transform.GetComponent<Move> ();
+						script.status = "bad";
+						script.bucket = 0;
+						script.milk = 0;
+						script.ChangeStatus (1);
+					}
+					break;
+
 				case "mistake":
 					if (string.IsNullOrEmpty (hitInfo.transform.GetComponentInParent<Move> ().status))
 					{
@@ -145,42 +200,43 @@ public class MoveManager : MonoBehaviour
 			Debug.Log (holdTime);
 
 			//hold时间不够
-			if (target != null) 
-			{
-				target.GetComponent<Move> ().Continue();
-
-				if (holdTime < 2)
+			if (target != null) {
+				Move script = target.GetComponent<Move> ();
+				if (target.name == "cow3") 
 				{
-					//时间不够
-					m_debugText.text = "not enough";
-					Debug.Log("not enough");
-					target.GetComponent<Move> ().ChangeStatus (3);
-				} 
-				else if (holdTime > 3) //不会在这里执行too much
-				{
-					//hold太久了
-					Debug.Log("too much");
-					m_debugText.text = "too much";
+					script.bucket = 0;
+					script.milk = 0;
 				}
 				else 
 				{
-					//正好
-					m_debugText.text = "good";
-					Debug.Log("good");
-					milkingSuccess += 1; //挤奶成功
-					target.GetComponent<Move> ().ChangeStatus(2);
+					script.Continue ();
+
+					if (holdTime < 2) {
+						//时间不够
+						m_debugText.text = "not enough";
+						Debug.Log ("not enough");
+						script.ChangeStatus (3);
+					} else if (holdTime > 3) { //不会在这里执行too much
+						//hold太久了
+						Debug.Log ("too much");
+						m_debugText.text = "too much";
+					} else {
+						//正好
+						m_debugText.text = "good";
+						Debug.Log ("good");
+						//milkingSuccess += 1; //挤奶成功
+						script.milk = 1;
+						script.ChangeStatus (2);
+					}
+
+					going.isOn = true;
+					target = null;
+					timer = 0;
 				}
 
-				going.isOn = true;
-				target = null;
-				timer = 0;
-			}
-
-			if (m_debugText.text == "miss")
-			{
-				//script.ChangeStatus (3);
-				//Move script = current.GetComponent<Move> ();
-				//script.ChangeStatus (3);
+				if (m_debugText.text == "miss") {
+				
+				}
 			}
 		}
 	}
@@ -188,16 +244,20 @@ public class MoveManager : MonoBehaviour
 	//刷下一个牛
 	GameObject Spawn()
 	{
-		GameObject go = Instantiate (prefab);
+		int id = UnityEngine.Random.Range (0, 3);
+
+		GameObject go = Instantiate (prefab[id]);
 		go.transform.position = spawnPos;
-		go.name = "cow1"; //随机
+		go.name = "cow" + (id + 1); //随机
+		Debug.Log(go.name);
 		cowCount += 1;
 		timer = 0;
+
 		return go;
 	}
 
 	//计分函数
-	void Score()
+	public void Score()
 	{
 		m_scoreText.text = "牛数量: " + cowCount
 			+ "\n伸桶成功: " + bucketSuccess + " 成功率: " + ((cowCount == 0)? 0 : (float)bucketSuccess *100 / (float)cowCount).ToString("f0") + "%"
@@ -207,7 +267,7 @@ public class MoveManager : MonoBehaviour
 	//游戏开始开关
 	void OnStartGame(bool active)
 	{
-		if (active) 
+		if (active)
 		{
 			timer = 0;
 		}
@@ -217,5 +277,42 @@ public class MoveManager : MonoBehaviour
 	void PushScoreBoard()
 	{
 		scoreBoard.SetActive (true);
+
+		results [ShowResult()].SetActive (true);
+	}
+
+	int ShowResult()
+	{
+		float bucketRate = (float)bucketSuccess *100 / (float)cowCount;
+		float milkRate = (float)bucketSuccess * 100 / (float)cowCount;
+
+		if (bucketRate < 60)
+		{
+			return 0;
+		}
+		else if(bucketRate >= 60 && milkRate < 60)
+		{
+			return 1;
+		}
+		else if(bucketRate >= 80 && milkRate < 80 && milkRate >= 60)
+		{
+			return 2;
+		}
+		else if(bucketRate >= 60 && bucketRate < 80 &&milkRate >=60)
+		{
+			return 3;
+		}
+		else if(bucketRate >= 80 && milkRate>=80)
+		{
+			return 4;
+		}
+
+		return 0; //0-4
+	}
+
+	//重新游戏
+	void RestartGame()
+	{
+		SceneManager.LoadScene ("StartWindow");
 	}
 }

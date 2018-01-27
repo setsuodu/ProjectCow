@@ -11,6 +11,8 @@ public class Move : MonoBehaviour
 	public bool active;
 	private SpriteRenderer render;
 	[SerializeField] private Sprite[] spArray;
+	public int bucket;
+	public int milk;
 
 	void Awake()
 	{
@@ -32,6 +34,7 @@ public class Move : MonoBehaviour
 			if (timer < -16f) 
 			{
 				MoveManager.instance.current = null;
+				AddScore ();
 				Destroy (this.gameObject);
 			}
 		}
@@ -40,15 +43,24 @@ public class Move : MonoBehaviour
 	public void Stop()
 	{
 		active = false;
+		Track.instance.active = false;
 	}
 
 	public void Continue()
 	{
 		active = true;
+		Track.instance.active = true;
 	}
 
 	public void ChangeStatus(int value)
 	{
 		render.sprite = spArray[value];
+	}
+
+	void AddScore()
+	{
+		MoveManager.instance.bucketSuccess += bucket;
+		MoveManager.instance.milkingSuccess += milk;
+		MoveManager.instance.Score();
 	}
 }
