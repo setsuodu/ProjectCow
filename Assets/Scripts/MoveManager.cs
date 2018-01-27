@@ -15,7 +15,7 @@ public class MoveManager : MonoBehaviour
 	[SerializeField] private float timer = 0;
 	[SerializeField] private GameObject scoreBoard;
 	[SerializeField] private GameObject prefab; //预制体
-	[SerializeField] private Transform hand;
+	[SerializeField] private Transform bucket;
 	[SerializeField] private RectTransform milk; //桶mask
 	[SerializeField] private Transform target; //当前目标
 	private float holdTime = 0;
@@ -65,7 +65,7 @@ public class MoveManager : MonoBehaviour
 		if (Input.GetKey (KeyCode.Space)) 
 		{
 			//手的移动
-			hand.localPosition = Vector3.Lerp (hand.localPosition, new Vector3 (0, 2, 0), 0.4f);
+			bucket.localPosition = Vector3.Lerp (bucket.localPosition, new Vector3 (0, 2, 0), 0.4f);
 
 			//射线检测
 			Ray ray = new Ray (transform.position + new Vector3(0,0,2), transform.up * 100);
@@ -92,7 +92,7 @@ public class MoveManager : MonoBehaviour
 						holdTime += Time.deltaTime;
 						if (milk.localPosition.y < 0) 
 						{
-							milk.localPosition += new Vector3 (0, 0.5f, 0); //0.01f 根据sprite大小，装载时间更改
+							milk.localPosition += new Vector3 (0, 1f, 0); //0.01f 根据sprite大小，装载时间更改
 						}
 						m_debugText.text = "good " + holdTime.ToString("f1");
 						going.isOn = false;
@@ -130,8 +130,8 @@ public class MoveManager : MonoBehaviour
 		}
 		if (Input.GetKeyUp (KeyCode.Space))
 		{
-			milk.localPosition = new Vector3 (0, -100f, 0);
-			hand.localPosition = new Vector3 (0, 0, 0);
+			milk.localPosition = new Vector3 (0, -200f, 0);
+			bucket.localPosition = new Vector3 (0, 0, 0);
 			Debug.Log (holdTime);
 
 			//hold时间不够
