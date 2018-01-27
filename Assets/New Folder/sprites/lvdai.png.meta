@@ -1,0 +1,168 @@
+fileFormatVersion: 2
+guid: 84e0ea1eb2192584093ba709b49ea614
+timeCreated: 1517034034
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: lvdai_0
+    21300002: lvdai_1
+    21300004: lvdai_2
+    21300006: lvdai_3
+    21300008: lvdai_4
+    21300010: lvdai_5
+    21300012: lvdai_6
+    21300014: lvdai_7
+    21300016: lvdai_8
+    21300018: lvdai_9
+    21300020: lvdai_10
+    21300022: lvdai_11
+    21300024: lvdai_12
+    21300026: lvdai_13
+    21300028: lvdai_14
+    21300030: lvdai_15
+    21300032: lvdai_16
+    21300034: lvdai_17
+    21300036: lvdai_18
+    21300038: lvdai_19
+    21300040: lvdai_20
+    21300042: lvdai_21
+    21300044: lvdai_22
+    21300046: lvdai_23
+    21300048: lvdai_24
+    21300050: lvdai_25
+    21300052: lvdai_26
+    21300054: lvdai_27
+    21300056: lvdai_28
+    21300058: lvdai_29
+    21300060: lvdai_30
+    21300062: lvdai_31
+    21300064: lvdai_32
+    21300066: lvdai_33
+    21300068: lvdai_34
+    21300070: lvdai_35
+    21300072: lvdai_36
+    21300074: lvdai_37
+    21300076: lvdai_38
+    21300078: lvdai_39
+    21300080: lvdai_40
+    21300082: lvdai_41
+    21300084: lvdai_42
+    21300086: lvdai_43
+    21300088: lvdai_44
+    21300090: lvdai_45
+    21300092: lvdai_46
+    21300094: lvdai_47
+    21300096: lvdai_48
+  externalObjects: {}
+  serializedVersion: 4
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: -1
+    aniso: -1
+    mipBias: -1
+    wrapU: 0
+    wrapV: 0
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 354, y: 248, z: 10, w: 0}
+  spritePixelsToUnits: 100
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  platformSettings:
+  - buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  - buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: lvdai_0
+      rect:
+        serializedVersion: 2
+        x: 354
+        y: 22
+        width: 33
+        height: 448
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+    outline:
+    - - {x: -225, y: 235}
+      - {x: -225, y: -235}
+      - {x: 225, y: -235}
+      - {x: 225, y: 235}
+    physicsShape:
+    - - {x: -225, y: 235}
+      - {x: -225, y: -235}
+      - {x: 225, y: -235}
+      - {x: 225, y: 235}
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
