@@ -6,7 +6,7 @@ public class Move : MonoBehaviour
 {
 	public static Move instance;
 
-	public float timer = 10;
+	public float timer = 10; //初始
 	public string status;
 	public bool active;
 
@@ -25,8 +25,8 @@ public class Move : MonoBehaviour
 		if (active) 
 		{
 			timer -= MoveManager.instance.speed;
-			transform.position = new Vector3 (timer, 0, 2);
-			if (timer < -20f) 
+			transform.position = new Vector3 (-timer, 0, 2);
+			if (timer < -15f) 
 			{
 				Destroy (this.gameObject);
 			}
