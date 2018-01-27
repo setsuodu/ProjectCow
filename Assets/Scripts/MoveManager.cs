@@ -19,7 +19,7 @@ public class MoveManager : MonoBehaviour
 	[SerializeField] private Transform bucket;
 	[SerializeField] private RectTransform milk; //桶mask
 	[SerializeField] private Transform target; //当前目标
-	private float holdTime = 0;
+	[SerializeField] private float holdTime = 0;
 	public Toggle going;
 	[SerializeField] private int cowMax = 10; //牛的总量，cowCount等于cowMax时停止Spawn，结算
 	/*[SerializeField]*/ private int cowCount = 0; //牛的数量
@@ -58,12 +58,15 @@ public class MoveManager : MonoBehaviour
 			}
 		}
 
-
 		//操作
 		if (Input.GetKeyDown (KeyCode.Space)) 
 		{
 			m_debugText.text = "";
 			holdTime = 0;
+			if (timer > 2 && current != null) {
+				Move script = current.GetComponent<Move> ();
+				script.ChangeStatus (3);
+			}
 		}
 		if (Input.GetKey (KeyCode.Space)) 
 		{
@@ -83,11 +86,13 @@ public class MoveManager : MonoBehaviour
 				case "cow1":
 					if (string.IsNullOrEmpty (hitInfo.transform.GetComponent<Move> ().status)) 
 					{
-						hitInfo.transform.GetComponent<Move> ().status = "good";
-						hitInfo.transform.GetComponent<Move> ().Stop ();
+						Move script = hitInfo.transform.GetComponent<Move> ();
+						script.status = "good";
+						script.Stop ();
 						target = hitInfo.transform;
 						Debug.Log ("good"); //伸桶成功 bucketSuccess
 						bucketSuccess += 1;
+						script.ChangeStatus (1);
 					}
 
 					if(hitInfo.transform.GetComponent<Move> ().status == "good")
@@ -99,7 +104,7 @@ public class MoveManager : MonoBehaviour
 						}
 						m_debugText.text = "good " + holdTime.ToString("f1");
 						going.isOn = false;
-						if (holdTime > 4) 
+						if (holdTime > 3) 
 						{
 							//hold太久了，按过头
 							Debug.Log("too much");
@@ -114,9 +119,11 @@ public class MoveManager : MonoBehaviour
 				case "mistake":
 					if (string.IsNullOrEmpty (hitInfo.transform.GetComponentInParent<Move> ().status))
 					{
-						hitInfo.transform.GetComponentInParent<Move> ().status = "bad";
+						Move script = hitInfo.transform.GetComponentInParent<Move> ();
+						script.status = "bad";
 						Debug.Log ("bad");
 						m_debugText.text = "bad";
+						script.ChangeStatus (3);
 					}
 					break;
 				}
@@ -142,13 +149,14 @@ public class MoveManager : MonoBehaviour
 			{
 				target.GetComponent<Move> ().Continue();
 
-				if (holdTime < 3)
+				if (holdTime < 2)
 				{
 					//时间不够
 					m_debugText.text = "not enough";
 					Debug.Log("not enough");
+					target.GetComponent<Move> ().ChangeStatus (3);
 				} 
-				else if (holdTime > 4) //不会在这里执行too much
+				else if (holdTime > 3) //不会在这里执行too much
 				{
 					//hold太久了
 					Debug.Log("too much");
@@ -160,6 +168,7 @@ public class MoveManager : MonoBehaviour
 					m_debugText.text = "good";
 					Debug.Log("good");
 					milkingSuccess += 1; //挤奶成功
+					target.GetComponent<Move> ().ChangeStatus(2);
 				}
 
 				going.isOn = true;
@@ -169,7 +178,9 @@ public class MoveManager : MonoBehaviour
 
 			if (m_debugText.text == "miss")
 			{
-				//m_debugText.text = "";
+				//script.ChangeStatus (3);
+				//Move script = current.GetComponent<Move> ();
+				//script.ChangeStatus (3);
 			}
 		}
 	}
@@ -182,7 +193,6 @@ public class MoveManager : MonoBehaviour
 		go.name = "cow1"; //随机
 		cowCount += 1;
 		timer = 0;
-
 		return go;
 	}
 

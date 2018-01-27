@@ -9,10 +9,13 @@ public class Move : MonoBehaviour
 	public float timer = 15; //初始
 	public string status;
 	public bool active;
+	private SpriteRenderer render;
+	[SerializeField] private Sprite[] spArray;
 
 	void Awake()
 	{
 		instance = this;
+		render = GetComponent<SpriteRenderer> ();
 	}
 
 	void Start () 
@@ -42,5 +45,10 @@ public class Move : MonoBehaviour
 	public void Continue()
 	{
 		active = true;
+	}
+
+	public void ChangeStatus(int value)
+	{
+		render.sprite = spArray[value];
 	}
 }
