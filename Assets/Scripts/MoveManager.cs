@@ -141,7 +141,7 @@ public class MoveManager : MonoBehaviour
 						m_debugText.text = "good " + holdTime.ToString("f1");
 						going.isOn = false;
 
-						if (holdTime > 2.2f) 
+						if (holdTime > 2.3f) 
 						{
 							//音效
 							SoundCows.instance.PlayClip(0); //失败
@@ -183,7 +183,7 @@ public class MoveManager : MonoBehaviour
 						}
 						m_debugText.text = "good " + holdTime.ToString("f1");
 						going.isOn = false;
-						if (holdTime > 2.2f) 
+						if (holdTime > 2.3f) 
 						{
 							//音效
 							SoundCows.instance.PlayClip(0); //失败
@@ -274,7 +274,7 @@ public class MoveManager : MonoBehaviour
 						//音效
 						SoundCows.instance.PlayClip(0); //失败
 					} 
-					else if (holdTime > 2.2f)
+					else if (holdTime > 2.3f)
 					{ 
 						//不会在这里执行too much
 					}
@@ -305,12 +305,11 @@ public class MoveManager : MonoBehaviour
 		}
 	}
 
-	public List<int> idList = new List<int> ()
+	public List<int> weightList = new List<int> ()
 	{
-		0, 0, 0, 0, 0, 0,
-		1, 1, 1,
-		2, 2
+		0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1,
 	};
+
 
 	//刷下一个牛
 	GameObject Spawn()
@@ -319,7 +318,10 @@ public class MoveManager : MonoBehaviour
 		Instantiate (nodeCol);
 		
 		//int id = UnityEngine.Random.Range (0, 3);
-		int id = idList[Random.Range (0,idList.Count)];
+		//int index = Random.Range (0,idList.Count);
+		///int id = idList[index];
+		//Debug.Log ("index: " + index + ", id:" + id);
+		int id = weightList [Random.Range (0, weightList.Count)];
 
 		GameObject go = Instantiate (prefab[id]);
 		go.transform.position = spawnPos;
@@ -403,7 +405,7 @@ public class MoveManager : MonoBehaviour
 
 	void LoadScene()
 	{
-		//SceneManager.LoadScene ("StartWindow");
-		SceneManager.LoadScene ("Game");
+		SceneManager.LoadScene ("StartWindow");
+		//SceneManager.LoadScene ("Game");
 	}
 }
