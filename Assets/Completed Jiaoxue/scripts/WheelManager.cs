@@ -23,6 +23,7 @@ public class WheelManager : MonoBehaviour {
 	public int niuPosiY;
 	public int niuPosiX;
 
+	[SerializeField] private AudioSource cowBgm;
 	[SerializeField] private hand shou;
 	[SerializeField] private SpriteRenderer Tong;//桶
 	[SerializeField] private SpriteRenderer hearts;
@@ -31,7 +32,7 @@ public class WheelManager : MonoBehaviour {
 	private int tttmp=1;
 	//private List<Wheel> wheel;//滚轮
 	[SerializeField]private Lvdai lvdai;	//履带
-	private niu cow;		//牛的临时变量
+	public niu cow;		//牛的临时变量
 	private int count;  	//计数器，需要连续计数三次
 	private float timer; 	//计时器
 	private Color tongColor;//临时存储桶的颜色
@@ -86,7 +87,9 @@ public class WheelManager : MonoBehaviour {
 		wenan.text = dialogue [0];
 		Iswenzi = true;
 	}
-	void Update(){
+
+	void Update()
+	{
 		if (Iswenzi) {
 			timer2 += Time.deltaTime ;
 			if (timer2 >= 3f) {
@@ -104,11 +107,32 @@ public class WheelManager : MonoBehaviour {
 		for (int i = 0; i < cntW; i++) {
 //			wheel [i].WMovement (speed);
 		}
+
 		lvdai.LMovement (speed);
 		cow.NMovement (speed);
-		if (cow.transform.position.x > 18) {
-			cow.transform.position = new Vector3 (niuPosiX, niuPosiY, -10);
+
+		if (cow == null) 
+		{
+			//niu tempCow = Instantiate (NIU, new Vector3 (niuPosiX, niuPosiY, -10), Quaternion.identity);
+			//tempCow.NMovement (speed);
 		}
+
+		if (cow.transform.position.x > 18)
+		{
+			Destroy (cow.gameObject);
+			cow = null;
+			//cowBgm.Play();
+
+			if (cow == null) 
+			{
+				//niu tempCow = Instantiate (NIU, new Vector3 (niuPosiX, niuPosiY, -10), Quaternion.identity);
+				//tempCow.NMovement (speed);
+
+				cow = Instantiate (NIU, new Vector3 (niuPosiX, niuPosiY, -10), Quaternion.identity);
+				cow.NMovement (speed);
+			}
+		}
+
 			if (count < 3) {
 				timer += Time.deltaTime;
 				if (timer > 0.5f) {
@@ -186,7 +210,7 @@ public class WheelManager : MonoBehaviour {
 				if (Input.GetKeyUp ("space")) {
 					if (succMilk) {
 						succMilk = false;
-						if (timer >= 2.7 && 3.2f >= timer) {
+						if (timer >= 2.5 && 3.8f >= timer) {
 							//通过 
 							SpriteRenderer heart= Instantiate(hearts,new Vector3(5,2,2),Quaternion.identity)as SpriteRenderer;
 							heart.transform.SetParent (cow.transform);
