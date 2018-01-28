@@ -60,7 +60,7 @@ public class Move : MonoBehaviour
 	void AddScore()
 	{
 		MoveManager.instance.bucketSuccess += bucket;
-		MoveManager.instance.milkingSuccess += milk;
+		MoveManager.instance.milkSuccess += milk;
 		MoveManager.instance.Score();
 	}
 }

@@ -8,6 +8,7 @@ public class MoveManager : MonoBehaviour
 {
 	public static MoveManager instance;
 
+	public bool isPlaying;
 	public float speed; //控制全局速度
 	public float timespan; //控制发射间隔
 	public GameObject current; //当前目标
@@ -16,6 +17,7 @@ public class MoveManager : MonoBehaviour
 	[SerializeField] private Text m_scoreText; //计分板
 	[SerializeField] private float timer = 0;
 	[SerializeField] private GameObject scoreBoard;
+	[SerializeField] private GameObject nodeCol;
 	[SerializeField] private GameObject[] prefab; //预制体
 	[SerializeField] private Transform bucket;
 	[SerializeField] private RectTransform milk; //桶mask
@@ -24,8 +26,9 @@ public class MoveManager : MonoBehaviour
 	public Toggle going;
 	[SerializeField] private int cowMax = 10; //牛的总量，cowCount等于cowMax时停止Spawn，结算
 	/*[SerializeField]*/ private int cowCount = 0; //牛的数量
+	[SerializeField] private int jCount = 0; //挤的次数
 	public int bucketSuccess = 0; //伸桶成功的数量
-	public int milkingSuccess = 0; //挤奶成功的数量
+	public int milkSuccess = 0; //挤奶成功的数量
 
 	//结算
 	[SerializeField] private Button restartButton;
@@ -42,7 +45,12 @@ public class MoveManager : MonoBehaviour
 	{
 		scoreBoard.SetActive (false);
 		going.isOn = true;
+		isPlaying = true;
 	}
+
+	[Space(10), Header("声音")]
+	public AudioSource audioSource;
+	public AudioClip setBucketClip;
 
 	void Update ()
 	{
@@ -66,11 +74,33 @@ public class MoveManager : MonoBehaviour
 		//操作
 		if (Input.GetKeyDown (KeyCode.Space)) 
 		{
+			if (restartButton.gameObject.activeInHierarchy)
+			{
+				restartButton.image.color = new Color (0.5f, 0.5f, 0.5f, 1);
+			}
+
 			m_debugText.text = "";
 			holdTime = 0;
-			if (timer > 2 && current != null) {
+			if (timer > 2 && current != null)
+			{
 				Move script = current.GetComponent<Move> ();
 				script.ChangeStatus (3);
+			}
+			audioSource.clip = setBucketClip;
+			audioSource.Play ();
+
+			Ray ray = new Ray (transform.position + new Vector3(0,0,2), transform.up * 100);
+			RaycastHit hitInfo;
+			if (Physics.Raycast (ray, out hitInfo)) //按下键时，射线检测到物体
+			{	
+				switch (hitInfo.transform.name) 
+				{
+				case "cow1":
+				case "cow2":
+						jCount += 1;
+						SoundMilk.instance.PlaySound ();
+						break;
+				}
 			}
 		}
 		if (Input.GetKey (KeyCode.Space)) 
@@ -95,8 +125,9 @@ public class MoveManager : MonoBehaviour
 						script.status = "good";
 						script.Stop ();
 						target = hitInfo.transform;
-						Debug.Log ("good"); //伸桶成功 bucketSuccess
-						//bucketSuccess += 1;
+						//Debug.Log ("good"); //伸桶成功 bucketSuccess
+
+						//计分
 						script.bucket = 1;
 						script.ChangeStatus (1);
 					}
@@ -109,10 +140,13 @@ public class MoveManager : MonoBehaviour
 						}
 						m_debugText.text = "good " + holdTime.ToString("f1");
 						going.isOn = false;
-						if (holdTime > 3) 
+
+						if (holdTime > 2.2f) 
 						{
+							//音效
+							SoundCows.instance.PlayClip(0); //失败
+
 							//hold太久了，按过头
-							Debug.Log("too much");
 							m_debugText.text = "too much";
 							Move script = hitInfo.transform.GetComponent<Move> ();
 							script.Continue();
@@ -131,10 +165,14 @@ public class MoveManager : MonoBehaviour
 						script.status = "good";
 						script.Stop ();
 						target = hitInfo.transform;
-						Debug.Log ("good"); //伸桶成功 bucketSuccess
-						//bucketSuccess += 1;
+						//Debug.Log ("good"); //伸桶成功 bucketSuccess
+
+						//计分
 						script.bucket = 1;
 						script.ChangeStatus (1);
+
+						//音效
+						SoundCows.instance.PlayClip(1); //成功
 					}
 					if(hitInfo.transform.GetComponent<Move> ().status == "good")
 					{
@@ -145,8 +183,11 @@ public class MoveManager : MonoBehaviour
 						}
 						m_debugText.text = "good " + holdTime.ToString("f1");
 						going.isOn = false;
-						if (holdTime > 3) 
+						if (holdTime > 2.2f) 
 						{
+							//音效
+							SoundCows.instance.PlayClip(0); //失败
+
 							//hold太久了，按过头
 							Debug.Log("too much");
 							m_debugText.text = "too much";
@@ -168,6 +209,9 @@ public class MoveManager : MonoBehaviour
 						script.bucket = 0;
 						script.milk = 0;
 						script.ChangeStatus (1);
+
+						//音效
+						SoundCows.instance.PlayClip(0); //失败
 					}
 					break;
 
@@ -179,6 +223,9 @@ public class MoveManager : MonoBehaviour
 						Debug.Log ("bad");
 						m_debugText.text = "bad";
 						script.ChangeStatus (3);
+
+						//音效
+						SoundCows.instance.PlayClip(0); //失败
 					}
 					break;
 				}
@@ -195,9 +242,15 @@ public class MoveManager : MonoBehaviour
 		}
 		if (Input.GetKeyUp (KeyCode.Space))
 		{
+			if (restartButton.gameObject.activeInHierarchy)
+			{
+				restartButton.image.color = new Color (1, 1, 1, 1);
+				RestartGame ();
+			}
+
 			milk.localPosition = new Vector3 (0, -200f, 0);
 			bucket.localPosition = new Vector3 (0, 0, 0);
-			Debug.Log (holdTime);
+			//Debug.Log (holdTime);
 
 			//hold时间不够
 			if (target != null) {
@@ -211,22 +264,32 @@ public class MoveManager : MonoBehaviour
 				{
 					script.Continue ();
 
-					if (holdTime < 2) {
+					if (holdTime < 1.8f)
+					{
 						//时间不够
 						m_debugText.text = "not enough";
 						Debug.Log ("not enough");
 						script.ChangeStatus (3);
-					} else if (holdTime > 3) { //不会在这里执行too much
-						//hold太久了
-						Debug.Log ("too much");
-						m_debugText.text = "too much";
-					} else {
+
+						//音效
+						SoundCows.instance.PlayClip(0); //失败
+					} 
+					else if (holdTime > 2.2f)
+					{ 
+						//不会在这里执行too much
+					}
+					else 
+					{
 						//正好
 						m_debugText.text = "good";
-						Debug.Log ("good");
-						//milkingSuccess += 1; //挤奶成功
+						//Debug.Log ("good");
+
+						//计分
 						script.milk = 1;
 						script.ChangeStatus (2);
+
+						//音效
+						SoundCows.instance.PlayClip(1); //成功
 					}
 
 					going.isOn = true;
@@ -234,22 +297,34 @@ public class MoveManager : MonoBehaviour
 					timer = 0;
 				}
 
-				if (m_debugText.text == "miss") {
+				if (m_debugText.text == "miss")
+				{
 				
 				}
 			}
 		}
 	}
 
+	public List<int> idList = new List<int> ()
+	{
+		0, 0, 0, 0, 0, 0,
+		1, 1, 1,
+		2, 2
+	};
+
 	//刷下一个牛
 	GameObject Spawn()
 	{
-		int id = UnityEngine.Random.Range (0, 3);
+		//创建一个音符碰撞体
+		Instantiate (nodeCol);
+		
+		//int id = UnityEngine.Random.Range (0, 3);
+		int id = idList[Random.Range (0,idList.Count)] - 1;
 
 		GameObject go = Instantiate (prefab[id]);
 		go.transform.position = spawnPos;
 		go.name = "cow" + (id + 1); //随机
-		Debug.Log(go.name);
+		//Debug.Log(go.name);
 		cowCount += 1;
 		timer = 0;
 
@@ -261,7 +336,7 @@ public class MoveManager : MonoBehaviour
 	{
 		m_scoreText.text = "牛数量: " + cowCount
 			+ "\n伸桶成功: " + bucketSuccess + " 成功率: " + ((cowCount == 0)? 0 : (float)bucketSuccess *100 / (float)cowCount).ToString("f0") + "%"
-			+ "\n挤奶成功: " + milkingSuccess + " 成功率: " + ((cowCount == 0)? 0 : (float)milkingSuccess * 100 / (float)cowCount).ToString("f0") + "%";
+			+ "\n挤奶成功: " + milkSuccess + " 成功率: " + ((cowCount == 0)? 0 : (float)milkSuccess * 100 / (float)jCount).ToString("f0") + "%";
 	}
 
 	//游戏开始开关
@@ -276,34 +351,44 @@ public class MoveManager : MonoBehaviour
 	//弹出计分板
 	void PushScoreBoard()
 	{
-		scoreBoard.SetActive (true);
+		if (scoreBoard.activeInHierarchy == false) 
+		{
+			scoreBoard.SetActive (true);
+			results [ShowResult()].SetActive (true);
+			isPlaying = false;
 
-		results [ShowResult()].SetActive (true);
+			BGMManager.instance.EndMusic ();
+		}
 	}
 
 	int ShowResult()
 	{
 		float bucketRate = (float)bucketSuccess *100 / (float)cowCount;
-		float milkRate = (float)bucketSuccess * 100 / (float)cowCount;
+		float milkRate = (float)bucketSuccess * 100 / (float)jCount;
 
 		if (bucketRate < 60)
 		{
+			SoundScoreboard.instance.PlayClip (0);
 			return 0;
 		}
 		else if(bucketRate >= 60 && milkRate < 60)
 		{
+			SoundScoreboard.instance.PlayClip (0);
 			return 1;
 		}
 		else if(bucketRate >= 80 && milkRate < 80 && milkRate >= 60)
 		{
+			SoundScoreboard.instance.PlayClip (1);
 			return 2;
 		}
 		else if(bucketRate >= 60 && bucketRate < 80 &&milkRate >=60)
 		{
+			SoundScoreboard.instance.PlayClip (1);
 			return 3;
 		}
 		else if(bucketRate >= 80 && milkRate>=80)
 		{
+			SoundScoreboard.instance.PlayClip (2);
 			return 4;
 		}
 
@@ -313,6 +398,12 @@ public class MoveManager : MonoBehaviour
 	//重新游戏
 	void RestartGame()
 	{
-		SceneManager.LoadScene ("StartWindow");
+		Invoke ("LoadScene" , 1);
+	}
+
+	void LoadScene()
+	{
+		//SceneManager.LoadScene ("StartWindow");
+		SceneManager.LoadScene ("Game");
 	}
 }

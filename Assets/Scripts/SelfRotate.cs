@@ -13,6 +13,7 @@ public class SelfRotate : MonoBehaviour
 
 	void Start () 
 	{
+		
 	}
 	
 	void Update () 
