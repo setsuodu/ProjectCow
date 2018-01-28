@@ -319,7 +319,7 @@ public class MoveManager : MonoBehaviour
 		Instantiate (nodeCol);
 		
 		//int id = UnityEngine.Random.Range (0, 3);
-		int id = idList[Random.Range (0,idList.Count)] - 1;
+		int id = idList[Random.Range (0,idList.Count)];
 
 		GameObject go = Instantiate (prefab[id]);
 		go.transform.position = spawnPos;

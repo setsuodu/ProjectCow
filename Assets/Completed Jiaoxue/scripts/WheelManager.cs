@@ -212,8 +212,9 @@ public class WheelManager : MonoBehaviour {
 		shou.transform.position = Vector3.Lerp (new Vector3 (-2, -6.5f, -10), new Vector3 (-2, -5f, -10), 0.4f);
 	}
 
-	public void EnterFormalGame(){
-		SceneManager.LoadScene ("jiaocheng");
+	public void EnterFormalGame()
+	{
+		SceneManager.LoadScene ("Game");
 	}
 
 }
