@@ -6,40 +6,49 @@ using UnityEngine.UI;
 public class NodeAnim : MonoBehaviour 
 {
 	public Sprite[] sps;
-	private Image image;
 	public GameObject curCol;
+    private SpriteRenderer render;
 
-	void Awake () 
+    [SerializeField] private float radian = 0; //弧度
+    private float perRadian = 0.03f; //每次变化的弧度
+    private float radius = 0.8f; //半径
+    private Vector3 oldPos;
+
+    void Awake () 
 	{
-		image = GetComponent<Image> ();
-	}
+        render = GetComponent<SpriteRenderer> ();
+        oldPos = transform.position;
+    }
 
-	void OnTriggerEnter(Collider col)
+    void Start()
+    {
+
+    }
+
+    void LateUpdate()
+    {
+        radian += perRadian; //弧度每次加0.03  
+        float dy = Mathf.Cos(radian) * radius; //dy定义的是针对y轴的变量，也可以使用sin，找到一个适合的值就可以  
+        transform.position = oldPos + new Vector3(0, dy, 0);
+    }
+
+    void OnTriggerEnter(Collider col)
 	{
 		if (col.tag == "node") 
 		{
 			//Debug.Log (col.name + " is enter");
 			curCol = col.gameObject;
-			image.sprite = sps [1];
+            render.sprite = sps [1];
 		}
 	}
-
-
+    
 	void OnTriggerExit(Collider col)
 	{
 		if (col.tag == "node")
 		{
 			//Debug.Log (col.name + " is exit");
 			curCol = null;
-			image.sprite = sps [0];
-		}
-	}
-
-	void Update()
-	{
-		if(curCol == null)
-		{
-			//image.sprite = sps [0];
+            render.sprite = sps [0];
 		}
 	}
 }

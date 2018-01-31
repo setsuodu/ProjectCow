@@ -43,16 +43,18 @@ public class Move : MonoBehaviour
 	public void Stop()
 	{
 		active = false;
-		Track.instance.active = false;
-	}
+        //Track.instance.active = false; //履带、滚轮停
+        Tracks.instance.active = false; //履带、滚轮停
+    }
 
-	public void Continue()
+    public void Continue()
 	{
 		active = true;
-		Track.instance.active = true;
-	}
+        //Track.instance.active = true; //履带、滚轮走
+        Tracks.instance.active = true; //履带、滚轮走
+    }
 
-	public void ChangeStatus(int value)
+    public void ChangeStatus(int value)
 	{
 		render.sprite = spArray[value];
 	}

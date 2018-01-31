@@ -51,6 +51,7 @@ public class Welcome : MonoBehaviour
 
     void LoadScene()
     {
-        SceneManager.LoadScene("Tutor");
+        //SceneManager.LoadScene("Tutor");
+        SceneManager.LoadScene("Game");
     }
 }

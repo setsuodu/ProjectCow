@@ -22,10 +22,12 @@ public class MoveManager : MonoBehaviour
 	[SerializeField] private Transform bucket;
 	[SerializeField] private RectTransform milk; //桶mask
 	[SerializeField] private Transform target; //当前目标
-	[SerializeField] private float holdTime = 0;
+    [SerializeField] private GameObject effectPrefab; //effect
+    [SerializeField] private Transform node4; //effect pos
+    [SerializeField] private float holdTime = 0;
 	public Toggle going;
-	[SerializeField] private int cowMax = 10; //牛的总量，cowCount等于cowMax时停止Spawn，结算
-	/*[SerializeField]*/ private int cowCount = 0; //牛的数量
+    private int cowCount = 0; //牛的数量
+    [SerializeField] private int cowMax = 10; //牛的总量，cowCount等于cowMax时停止Spawn，结算
 	[SerializeField] private int jCount = 0; //挤的次数
 	public int bucketSuccess = 0; //伸桶成功的数量
 	public int milkSuccess = 0; //挤奶成功的数量
@@ -125,10 +127,13 @@ public class MoveManager : MonoBehaviour
 						script.status = "good";
 						script.Stop ();
 						target = hitInfo.transform;
-						//Debug.Log ("good"); //伸桶成功 bucketSuccess
 
-						//计分
-						script.bucket = 1;
+                        //Debug.Log ("good"); //伸桶成功 bucketSuccess
+                        Transform ef = Instantiate(effectPrefab, node4.position, Quaternion.identity).transform;
+                        ef.SetParent(node4);
+
+                        //计分
+                        script.bucket = 1;
 						script.ChangeStatus (1);
 					}
 					if(hitInfo.transform.GetComponent<Move> ().status == "good")
@@ -165,10 +170,13 @@ public class MoveManager : MonoBehaviour
 						script.status = "good";
 						script.Stop ();
 						target = hitInfo.transform;
-						//Debug.Log ("good"); //伸桶成功 bucketSuccess
 
-						//计分
-						script.bucket = 1;
+                        //Debug.Log ("good"); //伸桶成功 bucketSuccess
+                        Transform ef = Instantiate(effectPrefab, node4.position, Quaternion.identity).transform;
+                        ef.SetParent(node4);
+
+                        //计分
+                        script.bucket = 1;
 						script.ChangeStatus (1);
 
 						//音效
