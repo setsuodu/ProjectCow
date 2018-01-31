@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿  using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,7 +39,7 @@ public class Welcome : MonoBehaviour
 
         if (flag)
         {
-            m_fadeImage.color = Color.Lerp(m_fadeImage.color, Color.black, Time.deltaTime);
+            m_fadeImage.color = Color.Lerp(m_fadeImage.color, Color.black, 0.1f);
         }
     }
 
@@ -51,7 +51,7 @@ public class Welcome : MonoBehaviour
 
     void LoadScene()
     {
-        //SceneManager.LoadScene("Tutor");
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("Tutor");
+        //SceneManager.LoadScene("Game");
     }
 }

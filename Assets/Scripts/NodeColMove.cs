@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class NodeColMove : MonoBehaviour
 {
-	public float timer = 15; //初始
-	public string status;
-	public bool active;
+    public float speed = 0.1f;
+	[SerializeField] private float timer = 15; //初始
+    [SerializeField] private string status;
+    [SerializeField] private bool active;
 
 	void Start () 
 	{
@@ -17,7 +18,7 @@ public class NodeColMove : MonoBehaviour
 	{
 		if (active) 
 		{
-			timer -= MoveManager.instance.speed;
+			timer -= speed;
 			transform.position = new Vector3 (-timer, 3, 3);
 			if (timer < -16f) 
 			{

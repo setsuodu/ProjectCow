@@ -9,7 +9,7 @@ public class MoveManager : MonoBehaviour
 	public static MoveManager instance;
 
 	public bool isPlaying;
-	public float speed; //控制全局速度
+	public float speed = 0.1f; //控制全局速度
 	public float timespan; //控制发射间隔
 	public GameObject current; //当前目标
 	[SerializeField] private Vector3 spawnPos, endPos;
@@ -31,12 +31,17 @@ public class MoveManager : MonoBehaviour
 	[SerializeField] private int jCount = 0; //挤的次数
 	public int bucketSuccess = 0; //伸桶成功的数量
 	public int milkSuccess = 0; //挤奶成功的数量
+    private List<int> weightList = new List<int>() { 0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1 };
 
-	//结算
-	[SerializeField] private Button restartButton;
+    [Space(10), Header("声音")]
+    public AudioSource audioSource;
+    public AudioClip setBucketClip;
+
+    //结算
+    [SerializeField] private Button restartButton;
 	[SerializeField] private GameObject[] results;
 
-	void Awake () 
+    void Awake () 
 	{
 		instance = this;
 		going.onValueChanged.AddListener ((bool value) => OnStartGame(value));
@@ -50,15 +55,8 @@ public class MoveManager : MonoBehaviour
 		isPlaying = true;
 	}
 
-	[Space(10), Header("声音")]
-	public AudioSource audioSource;
-	public AudioClip setBucketClip;
-
 	void Update ()
 	{
-		//计分
-		//Score ();
-
 		//获取状态
 		timer += Time.deltaTime;
 		if (timer >= timespan && going.isOn && current == null)
@@ -313,29 +311,23 @@ public class MoveManager : MonoBehaviour
 		}
 	}
 
-	public List<int> weightList = new List<int> ()
-	{
-		0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1,
-	};
-
 
 	//刷下一个牛
 	GameObject Spawn()
 	{
-		//创建一个音符碰撞体
-		Instantiate (nodeCol);
-		
-		//int id = UnityEngine.Random.Range (0, 3);
-		//int index = Random.Range (0,idList.Count);
-		///int id = idList[index];
-		//Debug.Log ("index: " + index + ", id:" + id);
-		int id = weightList [Random.Range (0, weightList.Count)];
+        //创建一个音符碰撞体
+        GameObject col = Instantiate(nodeCol);
+        col.GetComponent<NodeColMove>().speed = this.speed;
+
+        int id = weightList [Random.Range (0, weightList.Count)];
 
 		GameObject go = Instantiate (prefab[id]);
 		go.transform.position = spawnPos;
 		go.name = "cow" + (id + 1); //随机
-		//Debug.Log(go.name);
-		cowCount += 1;
+        go.GetComponent<Move>().speed = this.speed;
+        //Debug.Log(go.name);
+
+        cowCount += 1;
 		timer = 0;
 
 		return go;
