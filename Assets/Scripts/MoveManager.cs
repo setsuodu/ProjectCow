@@ -412,8 +412,8 @@ public class MoveManager : MonoBehaviour
 	}
 
 	void LoadScene()
-	{
-		SceneManager.LoadScene ("StartWindow");
-		//SceneManager.LoadScene ("Game");
+    {
+        //SceneManager.LoadScene ("Game"); //重复玩，测试
+        SceneManager.LoadScene ("Welcome");
 	}
 }
