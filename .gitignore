@@ -30,3 +30,8 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+*.ide
+.vs/ProjectCow/v15/Server/sqlite3/storage.ide-shm
+*.ide-wal
+*.ide
+*.ide
