@@ -224,7 +224,7 @@ public class MoveManager : MonoBehaviour
             bucket.enabled = false;
             milk.enabled = false;
 
-            if (current == hitInfo.transform.gameObject)
+            if (hitInfo.transform != null && current == hitInfo.transform.gameObject)
             {
                 current.GetComponent<BoxCollider>().enabled = false;
                 Move script = current.GetComponent<Move>();

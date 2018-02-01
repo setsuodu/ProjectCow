@@ -12,16 +12,19 @@ public class TutorManager : MonoBehaviour
 	public float timespan; //控制发射间隔
     public Toggle isStart;
     public GameObject current; //当前目标
+    /*[HideInInspector]*/ public Sprite[] bucketSprites;
+    /*[HideInInspector]*/ public Sprite[] maskSprites;
     [SerializeField] private Vector3 spawnPos, endPos;
 	[SerializeField] private float timer = 0;
     [SerializeField] private float holdTime = 0;
 	[SerializeField] private int bCount = 0; //伸的成功
     [SerializeField] private int jCount = 0; //挤的成功
 	[SerializeField] private GameObject nodeCol;
-	[SerializeField] private GameObject prefab; //预制体
     [SerializeField] private GameObject effectPrefab; //effect
-    [SerializeField] private RectTransform milk; //桶mask
-    [SerializeField] private Transform bucket;
+	[SerializeField] private GameObject[] prefab; //预制体
+    [SerializeField] private SpriteMask bucketMask;
+    [SerializeField] private SpriteRenderer bucket;
+    [SerializeField] private SpriteRenderer milk;
     [SerializeField] private Transform node4; //effect pos
     private RaycastHit hitInfo;
     [SerializeField] private bool textTime; //文字时间
@@ -60,6 +63,8 @@ public class TutorManager : MonoBehaviour
 		isStart.isOn = false;
         textTime = true;
         NextSub();
+        bucket.enabled = false;
+        milk.enabled = false;
     }
 
     void Update ()
@@ -113,6 +118,8 @@ public class TutorManager : MonoBehaviour
                             script.Stop();
                             Transform ef = Instantiate(effectPrefab, node4.position, Quaternion.identity).transform; //特效
                             ef.SetParent(node4);
+                            bucket.enabled = true;
+                            milk.enabled = true;
 
                             bCount += 1; //成功3次
                             SoundMilk.instance.PlaySound(1); //挤奶
@@ -128,7 +135,7 @@ public class TutorManager : MonoBehaviour
 
             if (Input.GetKey(KeyCode.Space))
             {
-                bucket.localPosition = Vector3.Lerp(bucket.localPosition, new Vector3(0, 2, 0), 0.4f); //手的移动
+                bucket.transform.localPosition = Vector3.Lerp(bucket.transform.localPosition, new Vector3(0, 2, 0), 0.4f); //手的移动
 
                 if (step >= 2)
                 {
@@ -142,9 +149,9 @@ public class TutorManager : MonoBehaviour
                                 if (hitInfo.transform.GetComponent<Move>().status == "good")
                                 {
                                     holdTime += Time.deltaTime;
-                                    if (milk.localPosition.y < 0)
+                                    if (milk.transform.localPosition.y < 0)
                                     {
-                                        milk.localPosition += new Vector3(0, 1.5f, 0); //装牛奶
+                                        milk.transform.localPosition += new Vector3(0, 0.012f, 0); //装牛奶
                                     }
                                     isStart.isOn = false;
                                     if (holdTime > 2.3f)
@@ -180,9 +187,17 @@ public class TutorManager : MonoBehaviour
             }
             if (Input.GetKeyUp(KeyCode.Space))
             {
-                milk.localPosition = new Vector3(0, -200f, 0);
-                bucket.localPosition = new Vector3(0, 0, 0);
-                if (current == hitInfo.transform.gameObject)
+                if (SoundMilk.instance.audioSource.isPlaying)
+                {
+                    SoundMilk.instance.StopSound();
+                }
+
+                milk.transform.localPosition = new Vector3(0, -1.5f, 0);
+                bucket.transform.localPosition = new Vector3(0, 0, 0);
+                bucket.enabled = false;
+                milk.enabled = false;
+
+                if (hitInfo.transform != null && current == hitInfo.transform.gameObject)
                 {
                     current.GetComponent<BoxCollider>().enabled = false;  //只许点一次
                     Move script = hitInfo.transform.GetComponent<Move>();
@@ -283,7 +298,11 @@ public class TutorManager : MonoBehaviour
 		GameObject col = Instantiate (nodeCol);
         col.GetComponent<NodeColMove>().speed = this.speed;
 
-		GameObject go = Instantiate (prefab); //教学牛
+        bucket.sprite = bucketSprites[0]; //根据不同牛，用不同桶
+        bucketMask.sprite = bucketSprites[0];
+        milk.sprite = maskSprites[0];
+
+        GameObject go = Instantiate (prefab[0]); //教学牛
 		go.transform.position = spawnPos;
 		go.name = "cow4";
         go.GetComponent<Move>().speed = this.speed;
