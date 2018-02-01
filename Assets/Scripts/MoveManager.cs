@@ -27,6 +27,7 @@ public class MoveManager : MonoBehaviour
     [SerializeField] private GameObject effectPrefab;
     [SerializeField] private GameObject heartPrefab;
     [SerializeField] private GameObject[] prefab;
+    [SerializeField] private SpriteMask bucketMask;
     [SerializeField] private SpriteRenderer bucket;
     [SerializeField] private SpriteRenderer milk;
     [SerializeField] private Transform node4; //effect位置
@@ -136,9 +137,9 @@ public class MoveManager : MonoBehaviour
 
                             Move script = hitInfo.transform.GetComponent<Move>();
                             holdTime += Time.deltaTime;
-                            if (milk.transform.localPosition.y < 0.6f)
+                            if (milk.transform.localPosition.y < 0f)
                             {
-                                milk.transform.localPosition += new Vector3(0, 0.01f, 0); //1.6/200
+                                milk.transform.localPosition += new Vector3(0, 0.012f, 0); //1.6/200
                             }
                             isStart.isOn = false;
                             if (holdTime > script.holdTime + 0.5f)
@@ -161,9 +162,9 @@ public class MoveManager : MonoBehaviour
 
                             Move script = hitInfo.transform.GetComponent<Move>();
                             holdTime += Time.deltaTime;
-                            if (milk.transform.localPosition.y < 0.6f)
+                            if (milk.transform.localPosition.y < 0f)
                             {
-                                milk.transform.localPosition += new Vector3(0, 0.005f, 0); //0.8/200涨慢一些
+                                milk.transform.localPosition += new Vector3(0, 0.006f, 0); //0.8/200涨慢一些
                             }
                             isStart.isOn = false;
                             if (holdTime > script.holdTime + 0.5f)
@@ -218,7 +219,7 @@ public class MoveManager : MonoBehaviour
                 heart = null;
             }
 
-            milk.transform.localPosition = new Vector3(0, -0.6f, 0);
+            milk.transform.localPosition = new Vector3(0, -1.5f, 0);
             bucket.transform.localPosition = new Vector3(0, 0, 0);
             bucket.enabled = false;
             milk.enabled = false;
@@ -281,7 +282,9 @@ public class MoveManager : MonoBehaviour
         col.GetComponent<NodeColMove>().speed = this.speed;
 
         int id = weightList [Random.Range (0, weightList.Count)];
+        Debug.Log("Spawn " + id);
         bucket.sprite = bucketSprites[id]; //根据不同牛，用不同桶
+        bucketMask.sprite = bucketSprites[id];
         milk.sprite = maskSprites[id];
 
         GameObject go = Instantiate (prefab[id]);
