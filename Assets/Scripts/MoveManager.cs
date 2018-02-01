@@ -38,7 +38,7 @@ public class MoveManager : MonoBehaviour
     public int bSuccess = 0; //伸桶成功数
     public int mCount = 0;   //挤奶尝试数
     public int mSuccess = 0; //挤奶成功数
-    private List<int> weightList = new List<int>() { 0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1,2,2,2,2 };
+    private List<int> weightList = new List<int>() { 0, 2, 0, 0, 1, 0, 0, 1, 1, 0, 1 };
     private GameObject heart = null;
     private RaycastHit hitInfo;
 

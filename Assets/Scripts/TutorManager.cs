@@ -132,7 +132,6 @@ public class TutorManager : MonoBehaviour
                     }
                 }
             }
-
             if (Input.GetKey(KeyCode.Space))
             {
                 bucket.transform.localPosition = Vector3.Lerp(bucket.transform.localPosition, new Vector3(0, 2, 0), 0.4f); //手的移动
@@ -148,19 +147,28 @@ public class TutorManager : MonoBehaviour
                             case "cow4":
                                 if (hitInfo.transform.GetComponent<Move>().status == "good")
                                 {
+                                    Move script = hitInfo.transform.GetComponent<Move>();
                                     holdTime += Time.deltaTime;
                                     if (milk.transform.localPosition.y < 0)
                                     {
                                         milk.transform.localPosition += new Vector3(0, 0.012f, 0); //装牛奶
                                     }
                                     isStart.isOn = false;
-                                    if (holdTime > 2.3f)
+                                    if (holdTime > script.holdTime + 0.5f)
                                     {
                                         //hold太久了，按过头
-                                        SoundCows.instance.PlayClip(0); //失败
-                                        Move script = hitInfo.transform.GetComponent<Move>();
+                                        if (step == 1)
+                                        {
+                                            SoundCows.instance.PlayClip(1); //成功
+                                            script.ChangeExpression(2);
+                                        }
+                                        else if (step == 2)
+                                        {
+                                            SoundCows.instance.PlayClip(0); //失败
+                                            script.ChangeExpression(3);
+                                        }
+
                                         script.Continue();
-                                        script.ChangeExpression(3);
                                         script.mSuccess = 0;
                                         isStart.isOn = true;
 
@@ -209,16 +217,20 @@ public class TutorManager : MonoBehaviour
                             //不够，失败
                             Debug.Log("not enough");
 
-                            if (step == 2)
+                            if (step == 1)
+                            {
+                                script.ChangeExpression(2);
+                                SoundCows.instance.PlayClip(1);
+                            }
+                            else if (step == 2)
                             {
                                 //再看教程
                                 subid = 3;
                                 textTime = true;
                                 NextSub();
+                                script.ChangeExpression(3);
+                                SoundCows.instance.PlayClip(0);
                             }
-
-                            script.ChangeExpression(3);
-                            SoundCows.instance.PlayClip(0);
                         }
                         else if (holdTime > 2.3f)
                         {
