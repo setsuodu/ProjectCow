@@ -28,10 +28,9 @@ public class BGMManager : MonoBehaviour
 	
 	void Update () 
 	{
-		if (!audioSource.isPlaying && MoveManager.instance.isPlaying) 
+		if (!audioSource.isPlaying && MoveManager.instance.isGame) 
 		{
 			//Debug.Log ("播完StartClip");
-
 			audioSource.clip = loopClip;
 			audioSource.Play ();
 		}

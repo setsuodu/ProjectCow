@@ -6,10 +6,10 @@ public class SoundMilk : MonoBehaviour
 {
 	public static SoundMilk instance;
 
-	private AudioSource audioSource;
-	public AudioClip clip;
+	public AudioSource audioSource;
+	[SerializeField] private AudioClip[] clips;
 
-	void Awake()
+    void Awake()
 	{
 		instance = this;
 		audioSource = GetComponent<AudioSource> ();
@@ -23,12 +23,11 @@ public class SoundMilk : MonoBehaviour
 		
 	}
 
-	public void PlaySound()
+	public void PlaySound(int times)
 	{
-		audioSource.clip = clip;
-		audioSource.Play();
+        audioSource.clip = clips[times - 1];
+        audioSource.Play();
 	}
-
 
 	public void StopSound()
 	{

@@ -10,7 +10,7 @@ public class TutorManager : MonoBehaviour
 
 	public float speed; //控制全局速度
 	public float timespan; //控制发射间隔
-    public Toggle going;
+    public Toggle isStart;
     public GameObject current; //当前目标
     [SerializeField] private Vector3 spawnPos, endPos;
 	[SerializeField] private float timer = 0;
@@ -22,15 +22,11 @@ public class TutorManager : MonoBehaviour
     [SerializeField] private GameObject effectPrefab; //effect
     [SerializeField] private RectTransform milk; //桶mask
     [SerializeField] private Transform bucket;
-	[SerializeField] private Transform target; //当前目标
     [SerializeField] private Transform node4; //effect pos
-
-    [Space(10), Header("声音")]
-    public AudioSource audioSource;
-    public AudioClip setBucketClip;
-
+    private RaycastHit hitInfo;
+    [SerializeField] private bool textTime; //文字时间
+    [SerializeField] private int subid = -1;
     [SerializeField] private int step = 0;
-    [SerializeField] private Image m_fadeImage;
     private List<string> subList = new List<string>()
     {
         "朋友，奶牛们可是很喜欢音乐的。",
@@ -44,27 +40,36 @@ public class TutorManager : MonoBehaviour
         "有点样子了，来正式的试炼吧，期待你成为一名骄傲的挤奶工！\n按下空格正式进入游戏。"
     };
     [SerializeField] private Text m_subText;
-    [SerializeField] private int subid = -1;
+    [SerializeField] private Image m_fadeImage;
+    [SerializeField] private Button m_skipButton;
     [SerializeField] private GameObject tipImage;
-    [SerializeField] private bool textTime;
+    [Space(10), Header("声音")]
+    public AudioSource audioSource;
+    public AudioClip setBucketClip;
 
     void Awake () 
 	{
 		instance = this;
         m_fadeImage.color = new Color(0, 0, 0, 1);
-        going.onValueChanged.AddListener ((bool value) => OnStartGame(value));
-	}
+        isStart.onValueChanged.AddListener ((bool value) => OnStartGame(value));
+        m_skipButton.onClick.AddListener(LoadScene);
+    }
 
 	void Start()
 	{
-		going.isOn = false;
+		isStart.isOn = false;
         textTime = true;
         NextSub();
     }
 
-    public RaycastHit hitInfo;
     void Update ()
     {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            //m_skipButton.image.color = new Color(1, 1, 1, 1);
+            LoadScene();
+        }
+
         if(m_fadeImage.color.a > 0)
         {
             m_fadeImage.color = Color.Lerp(m_fadeImage.color, new Color(0, 0, 0, 0), 0.1f);
@@ -80,7 +85,7 @@ public class TutorManager : MonoBehaviour
         else
         {
             timer += Time.deltaTime;
-            if (going.isOn && current == null && timer >= timespan && step < 3)
+            if (isStart.isOn && current == null && timer >= timespan && step < 3)
             {
                 //如果教学未完成，一直刷
                 current = Spawn();
@@ -92,7 +97,7 @@ public class TutorManager : MonoBehaviour
                 if (timer > 2 && current != null)
                 {
                     Move script = current.GetComponent<Move>();
-                    script.ChangeStatus(3);
+                    script.ChangeExpression(3);
                 }
                 audioSource.clip = setBucketClip;
                 audioSource.Play();
@@ -106,12 +111,11 @@ public class TutorManager : MonoBehaviour
                             Move script = hitInfo.transform.GetComponent<Move>();
                             script.status = "good";
                             script.Stop();
-                            target = hitInfo.transform;
                             Transform ef = Instantiate(effectPrefab, node4.position, Quaternion.identity).transform; //特效
                             ef.SetParent(node4);
 
                             bCount += 1; //成功3次
-                            SoundMilk.instance.PlaySound(); //挤奶
+                            SoundMilk.instance.PlaySound(1); //挤奶
                             if (bCount == 3)
                             {
                                 //成功3次，再进文字
@@ -142,17 +146,16 @@ public class TutorManager : MonoBehaviour
                                     {
                                         milk.localPosition += new Vector3(0, 1.5f, 0); //装牛奶
                                     }
-                                    going.isOn = false;
+                                    isStart.isOn = false;
                                     if (holdTime > 2.3f)
                                     {
                                         //hold太久了，按过头
                                         SoundCows.instance.PlayClip(0); //失败
                                         Move script = hitInfo.transform.GetComponent<Move>();
                                         script.Continue();
-                                        script.ChangeStatus(3);
-                                        script.milk = 0;
-                                        going.isOn = true;
-                                        target = null;
+                                        script.ChangeExpression(3);
+                                        script.mSuccess = 0;
+                                        isStart.isOn = true;
 
                                         //再看教程
                                         subid = 3;
@@ -167,7 +170,7 @@ public class TutorManager : MonoBehaviour
                                     Debug.Log("bad");
                                     Move script = hitInfo.transform.GetComponentInParent<Move>();
                                     script.status = "bad";
-                                    script.ChangeStatus(3);
+                                    script.ChangeExpression(3);
                                     SoundCows.instance.PlayClip(0); //失败
                                 }
                                 break;
@@ -177,17 +180,12 @@ public class TutorManager : MonoBehaviour
             }
             if (Input.GetKeyUp(KeyCode.Space))
             {
-                if (current != null && hitInfo.transform.gameObject == current) //只许点一次
-                {
-                    Debug.Log(hitInfo.transform);
-                    current.GetComponent<BoxCollider>().enabled = false;
-                }
-
                 milk.localPosition = new Vector3(0, -200f, 0);
                 bucket.localPosition = new Vector3(0, 0, 0);
-                if (target != null)
+                if (current == hitInfo.transform.gameObject)
                 {
-                    Move script = target.GetComponent<Move>();
+                    current.GetComponent<BoxCollider>().enabled = false;  //只许点一次
+                    Move script = hitInfo.transform.GetComponent<Move>();
                     {
                         script.Continue();
 
@@ -204,7 +202,7 @@ public class TutorManager : MonoBehaviour
                                 NextSub();
                             }
 
-                            script.ChangeStatus(3);
+                            script.ChangeExpression(3);
                             SoundCows.instance.PlayClip(0);
                         }
                         else if (holdTime > 2.3f)
@@ -214,13 +212,12 @@ public class TutorManager : MonoBehaviour
                         else
                         {
                             //正好
-                            script.ChangeStatus(2); //表情
+                            script.ChangeExpression(2); //表情
                             SoundCows.instance.PlayClip(1); //成功
                             jCount += 1; //挤奶成功，进入正式
                             NextSub();
                         }
-                        going.isOn = true;
-                        target = null;
+                        isStart.isOn = true;
                         timer = 0;
                     }
                 }
@@ -237,6 +234,7 @@ public class TutorManager : MonoBehaviour
         }
     }
 
+    //下一页文字
     void NextSub()
     {
         if (subid < subList.Count - 1)
@@ -245,7 +243,7 @@ public class TutorManager : MonoBehaviour
             m_subText.text = subList[subid];
             if (subid == 3)
             {
-                going.isOn = true;
+                isStart.isOn = true;
                 m_subText.text = "";
                 tipImage.SetActive(false);
                 step = 1;
@@ -258,7 +256,7 @@ public class TutorManager : MonoBehaviour
             }
             else if (subid == 7)
             {
-                going.isOn = true;
+                isStart.isOn = true;
                 m_subText.text = "";
                 tipImage.SetActive(false);
                 step = 2;
@@ -273,7 +271,7 @@ public class TutorManager : MonoBehaviour
         }
         else
         {
-            SceneManager.LoadScene("Game");
+            LoadScene();
         }
         Debug.Log("NextSub " + subid);
     }
@@ -294,4 +292,9 @@ public class TutorManager : MonoBehaviour
 
 		return go;
 	}
+
+    void LoadScene()
+    {
+        SceneManager.LoadScene("Game");
+    }
 }

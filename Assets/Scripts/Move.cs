@@ -7,15 +7,17 @@ public class Move : MonoBehaviour
 	public static Move instance;
 
     public float speed = 0.1f;
-    [SerializeField] private float timer = 15; //初始
     public string status;
+    [SerializeField] private float timer = 15; //初始
     [SerializeField] private bool active;
 	[SerializeField] private Sprite[] spArray;
     private SpriteRenderer render;
-    public int bucket;
-	public int milk;
+    public float holdTime = 1.8f; //需要挤奶时长
+    public int bSuccess; //伸桶成功
+    public int mCount;   //尝试挤奶
+    public int mSuccess; //挤奶成功
 
-	void Awake()
+    void Awake()
 	{
 		instance = this;
 		render = GetComponent<SpriteRenderer> ();
@@ -34,7 +36,7 @@ public class Move : MonoBehaviour
 			transform.position = new Vector3 (-timer, 0, 2);
 			if (timer < -16f)
 			{
-				AddScore ();
+				AddScore (); //销毁前计分
 				Destroy (this.gameObject);
 			}
 		}
@@ -43,19 +45,17 @@ public class Move : MonoBehaviour
 	public void Stop()
 	{
 		active = false;
-        //Track.instance.active = false; //履带、滚轮停
         Tracks.instance.active = false; //履带、滚轮停
     }
 
     public void Continue()
 	{
 		active = true;
-        //Track.instance.active = true; //履带、滚轮走
         Tracks.instance.active = true; //履带、滚轮走
     }
 
     //换表情
-    public void ChangeStatus(int value)
+    public void ChangeExpression(int value)
 	{
 		render.sprite = spArray[value];
 	}
@@ -65,9 +65,13 @@ public class Move : MonoBehaviour
         if(MoveManager.instance != null)
         {
             MoveManager.instance.current = null;
-            MoveManager.instance.bucketSuccess += bucket;
-            MoveManager.instance.milkSuccess += milk;
+            MoveManager.instance.cowCount += 1;
+            MoveManager.instance.bSuccess += bSuccess;
+
+            MoveManager.instance.mCount += mCount;
+
+            MoveManager.instance.mSuccess += mSuccess;
             MoveManager.instance.Score();
         }
-	}
+    }
 }
